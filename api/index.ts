@@ -11,6 +11,17 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// 健康检查:用来判断 Function 本身是否能被调起
+app.get('/api/__health', (_req, res) => {
+  res.json({
+    ok: true,
+    runtime: 'vercel-serverless',
+    hasSiliconFlowKey: Boolean(process.env.SILICONFLOW_API_KEY),
+    nodeVersion: process.version,
+    time: new Date().toISOString(),
+  });
+});
+
 app.use(
   '/api/trpc',
   createExpressMiddleware({
