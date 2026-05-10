@@ -5,11 +5,8 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": null,
   "functions": {
-    "api/index.ts": {
+    "api/trpc/[procedure].ts": {
       "maxDuration": 90
     }
-  },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
-  ]
+  }
 }
