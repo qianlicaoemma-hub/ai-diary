@@ -1,0 +1,259 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+/* ===== 暖橙流光主题 =====
+ * 设计哲学：暖色调渐变 + 轻量 Glassmorphism
+ * 主背景：米白 #FFF8F0，主色：暖橙 #FF7043，强调：珊瑚红 #FF5252
+ */
+:root {
+  --radius: 0.75rem;
+
+  /* 暖色调背景 */
+  --background: oklch(0.985 0.012 65);
+  --foreground: oklch(0.22 0.04 45);
+
+  /* 卡片：白色 */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.04 45);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.04 45);
+
+  /* 主色：暖橙 */
+  --primary: oklch(0.62 0.18 38);
+  --primary-foreground: oklch(1 0 0);
+
+  /* 次色：杏色 */
+  --secondary: oklch(0.95 0.03 65);
+  --secondary-foreground: oklch(0.35 0.06 45);
+
+  --muted: oklch(0.96 0.015 65);
+  --muted-foreground: oklch(0.55 0.04 50);
+
+  /* 强调色：珊瑚 */
+  --accent: oklch(0.93 0.05 55);
+  --accent-foreground: oklch(0.35 0.08 38);
+
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(0.9 0.02 65);
+  --input: oklch(0.92 0.02 65);
+  --ring: oklch(0.62 0.18 38);
+
+  /* 图表颜色：暖色系 */
+  --chart-1: oklch(0.62 0.18 38);
+  --chart-2: oklch(0.7 0.15 55);
+  --chart-3: oklch(0.78 0.12 70);
+  --chart-4: oklch(0.85 0.08 80);
+  --chart-5: oklch(0.9 0.05 90);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #FFF8F0;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Noto Serif SC', 'SimSun', serif;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 480px;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  /* ===== 渐变按钮 ===== */
+  .btn-gradient {
+    background: linear-gradient(135deg, #FF7043 0%, #FF5252 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(255, 112, 67, 0.35);
+  }
+  .btn-gradient:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(255, 112, 67, 0.45);
+  }
+  .btn-gradient:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(255, 112, 67, 0.3);
+  }
+
+  /* ===== 日记卡片 ===== */
+  .diary-card {
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 16px;
+    box-shadow:
+      0 2px 12px rgba(139, 99, 85, 0.08),
+      0 1px 3px rgba(139, 99, 85, 0.05);
+    border: 1px solid rgba(255, 200, 150, 0.25);
+    transition: all 0.2s ease;
+  }
+  .diary-card:hover {
+    box-shadow:
+      0 4px 20px rgba(139, 99, 85, 0.12),
+      0 2px 6px rgba(139, 99, 85, 0.06);
+  }
+
+  /* ===== 底部导航栏 ===== */
+  .bottom-nav {
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255, 200, 150, 0.25);
+    box-shadow: 0 -2px 16px rgba(139, 99, 85, 0.06);
+  }
+
+  /* ===== 顶部渐变装饰条 ===== */
+  .top-gradient-bar {
+    background: linear-gradient(90deg, #FFB347 0%, #FF7043 50%, #FF5252 100%);
+    height: 3px;
+  }
+
+  /* ===== 聊天气泡 ===== */
+  .chat-bubble-user {
+    background: linear-gradient(135deg, #FF7043 0%, #FF8A65 100%);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+    padding: 10px 14px;
+    max-width: 80%;
+    align-self: flex-end;
+    box-shadow: 0 2px 8px rgba(255, 112, 67, 0.3);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  /* ===== 热力图格子 ===== */
+  .heatmap-cell {
+    border-radius: 6px;
+    transition: all 0.15s ease;
+  }
+  .heatmap-cell:hover:not(:disabled) {
+    transform: scale(1.15);
+    z-index: 1;
+  }
+
+  /* ===== 页面进入动画 ===== */
+  @keyframes slideUpFade {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUpFade 0.3s ease-out forwards;
+  }
+
+  /* ===== 保存成功弹跳 ===== */
+  @keyframes saveBounce {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.025); }
+    70% { transform: scale(0.99); }
+    100% { transform: scale(1); }
+  }
+
+  .animate-save-bounce {
+    animation: saveBounce 0.4s ease-out;
+  }
+
+  /* ===== 滚动条美化 ===== */
+  ::-webkit-scrollbar {
+    width: 3px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 112, 67, 0.25);
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 112, 67, 0.4);
+  }
+
+  /* ===== Radix Slider 暖色主题 ===== */
+  [data-slot="slider-track"] {
+    background-color: #FFE0CC !important;
+  }
+  [data-slot="slider-range"] {
+    background: linear-gradient(90deg, #FFB347, #FF7043) !important;
+  }
+  [data-slot="slider-thumb"] {
+    border-color: #FF7043 !important;
+    background: white !important;
+    box-shadow: 0 1px 6px rgba(255, 112, 67, 0.4) !important;
+  }
+  [data-slot="slider-thumb"]:hover {
+    border-color: #FF5252 !important;
+  }
+}
