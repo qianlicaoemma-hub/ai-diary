@@ -1,6 +1,13 @@
 // ===== Vercel Serverless: tRPC 兼容端点 =====
 // 文件名 [procedure].ts → 自动匹配 /api/trpc/<任何过程名>
-// SiliconFlow 调用逻辑直接内联在这里,避免跨目录 import 在 Vercel 上的打包问题。
+// Prompt 共享自 api/_shared/prompts.ts(同 api/ 目录,Vercel 能正确打包)
+
+import {
+  ORGANIZE_SYSTEM_PROMPT,
+  ORGANIZE_USER_PROMPT_PREFIX,
+  REVIEW_SYSTEM_PROMPT,
+  REVIEW_USER_PROMPT_PREFIX,
+} from '../_shared/prompts';
 
 export const config = {
   runtime: 'nodejs',
@@ -53,48 +60,10 @@ async function callSiliconFlow(messages: Array<{ role: string; content: string }
   return data?.choices?.[0]?.message?.content as string | undefined;
 }
 
-const ORGANIZE_SYSTEM_PROMPT = `你是一个精致的个人日记助手。用户会输入一些关于今天的记录,你需要帮助他们整理成一张结构化的日记卡片。
-
-请按照以下 JSON 格式返回结果(必须是有效的 JSON):
-{
-  "mainEvent": "今日重点:今天最值得被记住的一个瞬间或亮点(情感锚点,不是事实总结)",
-  "memories": ["记忆片段1", "记忆片段2", "记忆片段3"],
-  "energyLevel": 7.5,
-  "insights": "重要收获:用一句话总结今天学到的或感悟到的(可以为空字符串)",
-  "nextDayPlans": ["明日计划1", "明日计划2"],
-  "seedsToPlant": ["想做的事1", "想做的事2"],
-  "longTermGoals": ["长期目标1", "长期目标2"]
-}
-
-字段角色(务必区分清楚,不要重复):
-- mainEvent「今日重点」是【高光时刻 / 情感锚点】:用一句话提炼今天最值得记住、最特别、最打动人的那一刻或那个细节,让未来翻回来看的自己一眼就被勾起回忆。
-  - 不要复述用户原话,要从原话里抽出一个具体的画面、感受、或转折点。
-  - 偏好"……的那一刻"、"……的瞬间"、"从 X 到 Y 的转折"这类表达。
-  ✅ 好例子:"在异国吃到一口完美的酱蟹"、"OKR 从模糊到清晰的那一下"
-  ❌ 不好的例子(事实总结/复述原话):"在韩国旅行,人很多但玩得开心,还吃了酱蟹"
-- memories「记忆片段」是【完整事实流水】:今天发生了哪些事,每条独立成行,客观陈述。
-- insights「重要收获」是【用户自己说出来的理性启发】,必须严格遵守:
-  - 只有当用户在原话里明确出现「意识到 / 学到 / 明白了 / 想通了 / 发现 / 让我觉得 / 原来 / 才知道」等表示自我反思的词时才填写
-  - 用户没有明确反思 → 必须返回空字符串 "",绝对不要 AI 自己总结道理或鸡汤式启发
-  ❌ 不允许的套话:"明确目标才能更高效地工作"、"沟通很重要"、"坚持就是胜利"等任何 AI 自己悟出来的大道理
-- mainEvent 与 memories 必须分工:mainEvent 抓画面/瞬间/转折,memories 罗列事实,绝不重复同一句话的不同写法。
-
-其他规则:
-1. memories 中每条独立、简洁,最好不超过 20 字
-2. energyLevel 是 0-10 之间的数字,可以有一位小数
-3. nextDayPlans / seedsToPlant / longTermGoals 三个数组,仅在用户明确提到时才填,否则返回空数组,不要瞎编
-4. 所有文本都应该是中文
-
-输出风格要求(非常重要):
-- 直接以日记主人的口吻输出最终内容,不要出现任何"基于用户输入推断"、"根据你说的"等元描述
-- 不要在 JSON 字段值里包含括号注释、推断说明、引用原文等内容
-- 不要在 JSON 之外输出任何思考过程、解释、前言或后记
-- 只输出一个合法的 JSON 对象,不要包裹在 markdown 代码块里`;
-
 async function organizeDiary(userInput: string) {
   const content = await callSiliconFlow([
     { role: 'system', content: ORGANIZE_SYSTEM_PROMPT },
-    { role: 'user', content: `请帮我整理今天的日记:${userInput}` },
+    { role: 'user', content: `${ORGANIZE_USER_PROMPT_PREFIX}${userInput}` },
   ]);
   if (!content) throw new Error('AI 返回为空');
 
@@ -113,21 +82,6 @@ async function organizeDiary(userInput: string) {
   };
 }
 
-const REVIEW_SYSTEM_PROMPT = `你是一个专业的个人成长顾问。用户会提供一个月的日记记录,你需要生成一份理性、深入的月度复盘总结。
-
-请按照以下 JSON 格式返回结果(必须是有效的 JSON):
-{
-  "highlights": "本月亮点:用 2-3 句话总结本月最值得庆祝的成就和亮点",
-  "challenges": "低谷分析:用 2-3 句话分析本月遇到的挑战、低谷或需要改进的地方",
-  "suggestions": "成长建议:用 2-3 句话提出针对性的建议,帮助用户在下个月做得更好"
-}
-
-关键要求:
-1. 所有内容都应该是中文
-2. 语气应该是鼓励和建设性的,但也要诚实
-3. 避免空洞的陈词滥调,要基于用户提供的具体日记内容
-4. 每个字段都应该是 2-3 句完整的段落`;
-
 interface DiaryEntryInput {
   date: string;
   mainEvent: string;
@@ -142,7 +96,7 @@ async function generateReview(entries: DiaryEntryInput[]) {
 
   const content = await callSiliconFlow([
     { role: 'system', content: REVIEW_SYSTEM_PROMPT },
-    { role: 'user', content: `请为我生成本月的复盘总结:\n\n${diaryText}` },
+    { role: 'user', content: `${REVIEW_USER_PROMPT_PREFIX}${diaryText}` },
   ]);
   if (!content) throw new Error('AI 返回为空');
 
